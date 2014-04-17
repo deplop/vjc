@@ -8,6 +8,8 @@
  * @property integer $user_id
  * @property integer $post_id
  * @property string $username
+ * @property string $updated_time
+ * @property string $created_time
  */
 class LikePost extends CActiveRecord
 {
@@ -16,7 +18,7 @@ class LikePost extends CActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'tbl_likepost';
+		return 'tbl_like_post';
 	}
 
 	/**
@@ -27,12 +29,13 @@ class LikePost extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('user_id, post_id, username', 'required'),
+			array('user_id, post_id, username, updated_time, created_time', 'required'),
 			array('user_id, post_id', 'numerical', 'integerOnly'=>true),
 			array('username', 'length', 'max'=>128),
+			array('user_id+post_id','uniqueMultiColumnValidator'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, user_id, post_id, username', 'safe', 'on'=>'search'),
+			array('id, user_id, post_id, username, updated_time, created_time', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -57,6 +60,8 @@ class LikePost extends CActiveRecord
 			'user_id' => 'User',
 			'post_id' => 'Post',
 			'username' => 'Username',
+			'updated_time' => 'Updated Time',
+			'created_time' => 'Created Time',
 		);
 	}
 
@@ -82,6 +87,8 @@ class LikePost extends CActiveRecord
 		$criteria->compare('user_id',$this->user_id);
 		$criteria->compare('post_id',$this->post_id);
 		$criteria->compare('username',$this->username,true);
+		$criteria->compare('updated_time',$this->updated_time,true);
+		$criteria->compare('created_time',$this->created_time,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

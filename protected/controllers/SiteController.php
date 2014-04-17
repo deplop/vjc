@@ -69,94 +69,17 @@ class SiteController extends Controller {
      * Displays the login page
      */
     public function actionLogin() {
-
-
-
-        // Remember to copy files from the SDK's src/ directory to a
-        // directory in your application on the server, such as php-sdk/
-
-
-        $config = Yii::app()->params["configFB"];
-        $facebook = new Facebook($config);
-        $user_id = $facebook->getUser();
-
-
-        if ($user_id) {
-
-
-            // We have a user ID, so probably a logged in user.
-            // If not, we'll get an exception, which we handle below.
-
-
-
-            try {
-
-                $access_token = $facebook->getAccessToken();
-                $facebook->setAccessToken($access_token);
-                $user_profile = $facebook->api('/me', 'GET');
-                
-                print_r(json_encode($user_profile));
-                file_put_contents(Yii::app()->basePath . "/data/Facebook/User/" . $user_id, json_encode($user_profile));
-                #$profile = file_get_contents(Yii::app()->basePath . "/data/Facebook/");
-                $user = new User();
-                $exist = $user->find("sid=:sid", array(":sid" => $user_id));
-                if (!$exist) {
-                    $user->username = $user_profile["name"];
-                    $user->password = null;
-                    $user->sid=$user_profile["id"];
-                    $user->phone=$user_profile["phone"];
-                    $user->email=$user_profile["email"];
-                    $user->gener=$user_profile["gender"];
-                    $user->about_you=$user_profile[""];
-                    $user->language="vi";
-                    $user->jlpt=null;
-                    $user->like=0;
-                    $user->dislike=0;
-                    $user->level=0;
-                    $user->quotation=$user_profile["quotes"];
-                    $user->profile_image=$user_profile[""];
-                    $user->mask_name=$user_profile["name"];
-                    $user->birthday = $user_profile["birthday"];
-                    $user->hometown=$user_profile["hometown"]["name"];
-                    $user->living=$user_profile["location"]["name"];
-                    $user->type=0;
-                    $user->created_time=date("Y:m:d H:m:s");
-                    $user->updated_time=date("Y:m:d H:m:s");
-                    
-                    $user->save();
-                         
-                }
-
-
-                /*
-                  $img = file_get_contents('https://graph.facebook.com/'.$fid.'/picture?type=large');
-                  $file = dirname(__file__).'/avatar/'.$fid.'.jpg';
-                  file_put_contents($file, $img);
-
-                  <img src="https://graph.facebook.com/<?= $fid ?>/picture">
-
-
-                  <img src="https://graph.facebook.com/<?= $fid ?>/picture?type=large">
-                 */
-            } catch (FacebookApiException $e) {
-                // If the user is logged out, you can have a 
-                // user ID even though the access token is invalid.
-                // In this case, we'll get an exception, so we'll
-                // just ask the user to login again here.
-                $login_url = $facebook->getLoginUrl();
-                echo 'Please <a href="' . $login_url . '">login.</a>';
-                error_log($e->getType());
-                error_log($e->getMessage());
-            }
-        } else {
-
-            // No user, print a link for the user to login
-            $login_url = $facebook->getLoginUrl();
-            echo 'Please <a href="' . $login_url . '">login.</a>';
-        }
-
-        // display the login form
-        $this->render('login', array("user_id" => $user_id, "facebook" => $facebook));
+		$form = new LoginForm;
+		
+		if(isset($_POST["LoginForm"])){
+			$form->attributes = $_POST["LoginForm"];
+			if($form->validate()&&$form->login())
+				$this->redirect(Yii::app()->user->returnUrl);
+	
+		}
+		
+		$this->render("login",array("model"=>$form));
+    	
     }
 
     /**

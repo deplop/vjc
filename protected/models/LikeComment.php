@@ -16,7 +16,7 @@ class LikeComment extends CActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'tbl_likecomment';
+		return 'tbl_like_comment';
 	}
 
 	/**

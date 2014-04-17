@@ -36,6 +36,7 @@ class Comment extends CActiveRecord
 		return array(
 			array('sid, message, author_id, author_sid, post_id, created_time, updated_time', 'required'),
 			array('sid, author_id, author_sid, post_id, like_count, dislike_count, type', 'numerical', 'integerOnly'=>true),
+			array('sid','unique'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, sid, message, author_id, author_sid, post_id, like_count, dislike_count, type, created_time, updated_time', 'safe', 'on'=>'search'),

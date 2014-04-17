@@ -25,17 +25,30 @@
 	<?php echo CHtml::encode($data->author_id); ?>
 	<br />
 
+	
 	<b><?php echo CHtml::encode($data->getAttributeLabel('like_count')); ?>:</b>
 	<?php echo CHtml::encode($data->like_count); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('media_url')); ?>:</b>
-	<?php echo CHtml::encode($data->media_url); ?>
+	<?php /*
+	<b><?php echo CHtml::encode($data->getAttributeLabel('dislike_count')); ?>:</b>
+	<?php echo CHtml::encode($data->dislike_count); ?>
 	<br />
 
-	<?php /*
+	<b><?php echo CHtml::encode($data->getAttributeLabel('picture')); ?>:</b>
+	<?php echo CHtml::encode($data->picture); ?>
+	<br />
+
+	<b><?php echo CHtml::encode($data->getAttributeLabel('link')); ?>:</b>
+	<?php echo CHtml::encode($data->link); ?>
+	<br />
+
 	<b><?php echo CHtml::encode($data->getAttributeLabel('type')); ?>:</b>
 	<?php echo CHtml::encode($data->type); ?>
+	<br />
+
+	<b><?php echo CHtml::encode($data->getAttributeLabel('last_comment_time')); ?>:</b>
+	<?php echo CHtml::encode($data->last_comment_time); ?>
 	<br />
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('updated_time')); ?>:</b>

@@ -50,13 +50,19 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 		'message',
 		'title',
 		'author_id',
-		'like_count',
+		'author_sid',
 		/*
-		'media_url',
+		'like_count',
+		'dislike_count',
+		'picture',
+		'link',
 		'type',
+		'last_comment_time',
+		
 		'updated_time',
-		'created_time',
 		*/
+		'created_time',
+		
 		array(
 			'class'=>'CButtonColumn',
 		),

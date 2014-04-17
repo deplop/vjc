@@ -13,27 +13,32 @@
 
 	<div class="row">
 		<?php echo $form->label($model,'id'); ?>
-		<?php echo $form->textField($model,'id'); ?>
+		<?php echo $form->textField($model,'id',array('size'=>20,'maxlength'=>20)); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->label($model,'sid'); ?>
-		<?php echo $form->textField($model,'sid'); ?>
+		<?php echo $form->textField($model,'sid',array('size'=>20,'maxlength'=>20)); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->label($model,'message'); ?>
-		<?php echo $form->textField($model,'message',array('size'=>60,'maxlength'=>7000)); ?>
+		<?php echo $form->textArea($model,'message',array('rows'=>6, 'cols'=>50)); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->label($model,'title'); ?>
-		<?php echo $form->textField($model,'title',array('size'=>60,'maxlength'=>128)); ?>
+		<?php echo $form->textField($model,'title',array('size'=>60,'maxlength'=>512)); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->label($model,'author_id'); ?>
-		<?php echo $form->textField($model,'author_id'); ?>
+		<?php echo $form->textField($model,'author_id',array('size'=>20,'maxlength'=>20)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'author_sid'); ?>
+		<?php echo $form->textField($model,'author_sid',array('size'=>20,'maxlength'=>20)); ?>
 	</div>
 
 	<div class="row">
@@ -42,13 +47,28 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'media_url'); ?>
-		<?php echo $form->textField($model,'media_url',array('size'=>60,'maxlength'=>256)); ?>
+		<?php echo $form->label($model,'dislike_count'); ?>
+		<?php echo $form->textField($model,'dislike_count'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'picture'); ?>
+		<?php echo $form->textField($model,'picture',array('size'=>60,'maxlength'=>512)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'link'); ?>
+		<?php echo $form->textField($model,'link',array('size'=>60,'maxlength'=>512)); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->label($model,'type'); ?>
 		<?php echo $form->textField($model,'type'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'last_comment_time'); ?>
+		<?php echo $form->textField($model,'last_comment_time'); ?>
 	</div>
 
 	<div class="row">

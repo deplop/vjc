@@ -29,6 +29,7 @@ class Post extends CActiveRecord
 		return 'tbl_post';
 	}
 
+	
 	/**
 	 * @return array validation rules for model attributes.
 	 */
@@ -41,6 +42,7 @@ class Post extends CActiveRecord
 			array('like_count, dislike_count, type', 'numerical', 'integerOnly'=>true),
 			array('sid, author_id, author_sid', 'length', 'max'=>20),
 			array('title, picture, link', 'length', 'max'=>512),
+			array('sid','unique'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, sid, message, title, author_id, author_sid, like_count, dislike_count, picture, link, type, last_comment_time, updated_time, created_time', 'safe', 'on'=>'search'),
@@ -55,7 +57,25 @@ class Post extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'author'=>array(self::BELONGS_TO,"User","author_id"),
+			'like'=>array(self::MANY_MANY,"User","tbl_likepost(post_id,user_id)"),
+			'comment'=>array(self::HAS_MANY,"Comment","post_id"),
+			
 		);
+	}
+	
+	public function getAuthorName(){
+		return $this->author->username;
+		
+	}
+	
+	public function getLike(){
+		return CHtml::listData($this->like,'post_id','user_id');
+		
+	}
+	
+	public function getComment(){
+		return CHtml::listData($this->comment,'sid','author_sid');
 	}
 
 	/**

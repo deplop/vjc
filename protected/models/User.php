@@ -53,6 +53,7 @@ class User extends CActiveRecord
 			array('sid', 'length', 'max'=>16),
 			array('mask_name', 'length', 'max'=>32),
 			array('link', 'length', 'max'=>256),
+			array('sid','unique'),
 			array('about_you, quotation, birthday', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.

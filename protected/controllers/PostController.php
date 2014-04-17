@@ -1,193 +1,259 @@
 <?php
 
-class PostController extends Controller {
+class PostController extends Controller
+{
+	/**
+	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
+	 * using two-column layout. See 'protected/views/layouts/column2.php'.
+	 */
+	//public $layout='//layouts/column2';
 
-    /**
-     * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-     * using two-column layout. See 'protected/views/layouts/column2.php'.
-     */
-    public $layout = '//layouts/column2';
+	/**
+	 * @return array action filters
+	 */
+	public function filters()
+	{
+		return array(
+			'accessControl', // perform access control for CRUD operations
+			'postOnly + delete', // we only allow deletion via POST request
+		);
+	}
 
-    /**
-     * @return array action filters
-     */
-    public function filters() {
-        return array(
-            'accessControl', // perform access control for CRUD operations
-            'postOnly + delete', // we only allow deletion via POST request
-        );
-    }
+	/**
+	 * Specifies the access control rules.
+	 * This method is used by the 'accessControl' filter.
+	 * @return array access control rules
+	 */
+	public function accessRules()
+	{
+		return array(
+		array('allow',  // allow all users to perform 'index' and 'view' actions
+				'actions'=>array('index','view','update','updateClassify'),
+				'users'=>array('*'),
+		),
+		array('allow', // allow authenticated user to perform 'create' and 'update' actions
+				'actions'=>array('create','update','admin','delete','classify','updateClassify'),
+				'users'=>array('@'),
+		),
+			
+		array('deny',  // deny all users
+				'users'=>array('*'),
+		),
+		);
+	}
 
-    /**
-     * Specifies the access control rules.
-     * This method is used by the 'accessControl' filter.
-     * @return array access control rules
-     */
-    public function accessRules() {
-        return array(
-            array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'requestBatch', 'print'),
-                'users' => array('*'),
-            ),
-            array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update'),
-                'users' => array('@'),
-            ),
-            array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'delete'),
-                'users' => array('admin'),
-            ),
-            array('deny', // deny all users
-                'users' => array('*'),
-            ),
-        );
-    }
 
-    /**
-     * Displays a particular model.
-     * @param integer $id the ID of the model to be displayed
-     */
-    public function actionView($id) {
-        $this->render('view', array(
-            'model' => $this->loadModel($id),
-        ));
-    }
 
-    public function actionRequestBatch() {
-        /*
-        ini_set('memory_limit', '512M');
-        $dir_array = scandir(Yii::app()->basePath . "/data/Facebook/Group/feed/");
-        $array = array(".", "..", ".DS_Store");
-        $dir_array = array_diff($dir_array, $array);
-        $array_1 = array_slice($dir_array, 0, 1500, true);
-        $array_2 = array_slice($dir_array, 1501, 3000, true);
-        $array_3 = array_slice($dir_array, 3001, 4500, true);
-        $array_4 = array_slice($dir_array, 4501, 5000, true);
+	public function actionClassify(){
+			
+		$formModel=new ClassifyForm;
+		$post=Post::model()->find("active=:active",array(":active"=>0));
+		$formModel->title=$post->title;
 
-        save2DB($array_1);
-        //usleep(100000000);
-        //save2DB($array_2);
-        //usleep(100000000);
-        //save2DB($array_4);
-        //usleep(100000000);
-        //save2DB($array_4);
-        
-        */
-        get2File();
-    }
+		$this->render("classify",array("model"=>$post,"formModel"=>$formModel));
+	}
 
-    public function actionPrint() {
-        $json = file_get_contents(Yii::app()->basePath . "/data/Facebook/Group/feed/826919200658092.json");
-        $file2 = file_get_contents(Yii::app()->basePath . "/data/Facebook/Group/feed/825889510761061.json");
-        $file1 = json_decode($json, true);
-        $file2 = json_decode($file2, true);
-        echo $file1["message"];
-        print $file2["message"];
-    }
+	public function actionUpdateClassify(){
 
-    /**
-     * Creates a new model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     */
-    public function actionCreate() {
-        $model = new Post;
 
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
+		$formModel=new ClassifyForm;
 
-        if (isset($_POST['Post'])) {
-            $model->attributes = $_POST['Post'];
-            if ($model->save())
-                $this->redirect(array('view', 'id' => $model->id));
-        }
+		if(isset($_POST["ClassifyForm"])){
+				
+			$formModel->categories=$_POST["ClassifyForm"]["categories"];
+			$formModel->tags=$_POST["ClassifyForm"]["tags"];
+			$formModel->title =$_POST["ClassifyForm"]["title"];
+			$formModel->id = $_POST["ClassifyForm"]["id"];
 
-        $this->render('create', array(
-            'model' => $model,
-        ));
-    }
+			if($formModel->validate()){
 
-    /**
-     * Updates a particular model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id the ID of the model to be updated
-     */
-    public function actionUpdate($id) {
-        $model = $this->loadModel($id);
+				$edit = Post::model()->find("id=:id AND active=:active",array(":id"=>$formModel->id,":active"=>0));
+				$edit->title = $formModel->title;
+				$edit->active = 1;
+				if(!$edit->save()){
+					print_r($edit->getErrors());
+				}else{
 
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
+					$tags= explode("#",trim(trim($formModel->tags),"#"));
+					//print_r($tags);die();
 
-        if (isset($_POST['Post'])) {
-            $model->attributes = $_POST['Post'];
-            if ($model->save())
-                $this->redirect(array('view', 'id' => $model->id));
-        }
+					//save tags
+					foreach ($tags as $tag_name){
+						$tag=Tag::model()->find("tag=:tag",array(":tag"=>$tag_name));
+						if(!isset($tag)){
+							$tag = new Tag;
+							$tag->tag = $tag_name;
+							$tag->created_time = date("Y-m-d H:i:s");
+							$tag->updated_time = $tag->created_time;
+							if(!$tag->save()){
+								print_r($tag->getErrors());
+							}
+						}
 
-        $this->render('update', array(
-            'model' => $model,
-        ));
-    }
+						//die();
+						$post_tag = new PostTag;
+						$post_tag->tag_id = $tag->id;
+						$post_tag->post_id = $edit->id;
+						$post_tag->created_time = date("Y-m-d H:i:s");
+						$post_tag->updated_time = date("Y-m-d H:i:s");
 
-    /**
-     * Deletes a particular model.
-     * If deletion is successful, the browser will be redirected to the 'admin' page.
-     * @param integer $id the ID of the model to be deleted
-     */
-    public function actionDelete($id) {
-        $this->loadModel($id)->delete();
+						if(!$post_tag->save()){
 
-        // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-        if (!isset($_GET['ajax']))
-            $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-    }
+							print_r($post_tag->getErrors());
 
-    /**
-     * Lists all models.
-     */
-    public function actionIndex() {
-        $dataProvider = new CActiveDataProvider('Post');
-        $this->render('index', array(
-            'dataProvider' => $dataProvider,
-        ));
-    }
+						}
 
-    /**
-     * Manages all models.
-     */
-    public function actionAdmin() {
-        $model = new Post('search');
-        $model->unsetAttributes();  // clear any default values
-        if (isset($_GET['Post']))
-            $model->attributes = $_GET['Post'];
+					}
 
-        $this->render('admin', array(
-            'model' => $model,
-        ));
-    }
 
-    /**
-     * Returns the data model based on the primary key given in the GET variable.
-     * If the data model is not found, an HTTP exception will be raised.
-     * @param integer $id the ID of the model to be loaded
-     * @return Post the loaded model
-     * @throws CHttpException
-     */
-    public function loadModel($id) {
-        $model = Post::model()->findByPk($id);
-        if ($model === null)
-            throw new CHttpException(404, 'The requested page does not exist.');
-        return $model;
-    }
+					//save categories
+					foreach ($formModel->categories as $category_id){
+						$post_category = new PostCategory;
+						$post_category->post_id = $edit->id;
+						$post_category->category_id = $category_id;
+						$post_category->created_time = date("Y-m-d H:i:s");
+						$post_category->updated_time = $post_category->created_time;
 
-    /**
-     * Performs the AJAX validation.
-     * @param Post $model the model to be validated
-     */
-    protected function performAjaxValidation($model) {
-        if (isset($_POST['ajax']) && $_POST['ajax'] === 'post-form') {
-            echo CActiveForm::validate($model);
-            Yii::app()->end();
-        }
-    }
+						if(!$post_category->save()){
+							print_r($post_category->getErrors());
+						}
+					}
+				}
+				$formModel=new ClassifyForm;
+			}
 
+		}
+
+		$post=Post::model()->find("active=:active",array(":active"=>0));
+		$formModel->title=$post->title;
+
+		//die($formModel->title);
+		$this->renderPartial('_updateClassify',array("formModel"=>$formModel,"model"=>$post),false,true);
+	}
+
+	/**
+	 * Displays a particular model.
+	 * @param integer $id the ID of the model to be displayed
+	 */
+	public function actionView($id)
+	{
+		$this->render('view',array(
+			'model'=>$this->loadModel($id),
+		));
+	}
+
+	/**
+	 * Creates a new model.
+	 * If creation is successful, the browser will be redirected to the 'view' page.
+	 */
+	public function actionCreate()
+	{
+		$model=new Post;
+
+		// Uncomment the following line if AJAX validation is needed
+		// $this->performAjaxValidation($model);
+
+		if(isset($_POST['Post']))
+		{
+			$model->attributes=$_POST['Post'];
+			if($model->save())
+			$this->redirect(array('view','id'=>$model->id));
+		}
+
+		$this->render('create',array(
+			'model'=>$model,
+		));
+	}
+
+	/**
+	 * Updates a particular model.
+	 * If update is successful, the browser will be redirected to the 'view' page.
+	 * @param integer $id the ID of the model to be updated
+	 */
+	public function actionUpdate($id)
+	{
+		$model=$this->loadModel($id);
+
+		// Uncomment the following line if AJAX validation is needed
+		// $this->performAjaxValidation($model);
+
+		if(isset($_POST['Post']))
+		{
+			$model->attributes=$_POST['Post'];
+			if($model->save())
+			$this->redirect(array('view','id'=>$model->id));
+		}
+
+		$this->render('update',array(
+			'model'=>$model,
+		));
+	}
+
+	/**
+	 * Deletes a particular model.
+	 * If deletion is successful, the browser will be redirected to the 'admin' page.
+	 * @param integer $id the ID of the model to be deleted
+	 */
+	public function actionDelete($id)
+	{
+		$this->loadModel($id)->delete();
+
+		// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+		if(!isset($_GET['ajax']))
+		$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+	}
+
+	/**
+	 * Lists all models.
+	 */
+	public function actionIndex()
+	{
+		$dataProvider=new CActiveDataProvider('Post');
+		$this->render('index',array(
+			'dataProvider'=>$dataProvider,
+		));
+	}
+
+	/**
+	 * Manages all models.
+	 */
+	public function actionAdmin()
+	{
+		$model=new Post('search');
+		$model->unsetAttributes();  // clear any default values
+		if(isset($_GET['Post']))
+		$model->attributes=$_GET['Post'];
+
+		$this->render('admin',array(
+			'model'=>$model,
+		));
+	}
+
+	/**
+	 * Returns the data model based on the primary key given in the GET variable.
+	 * If the data model is not found, an HTTP exception will be raised.
+	 * @param integer $id the ID of the model to be loaded
+	 * @return Post the loaded model
+	 * @throws CHttpException
+	 */
+	public function loadModel($id)
+	{
+		$model=Post::model()->findByPk($id);
+		if($model===null)
+		throw new CHttpException(404,'The requested page does not exist.');
+		return $model;
+	}
+
+	/**
+	 * Performs the AJAX validation.
+	 * @param Post $model the model to be validated
+	 */
+	protected function performAjaxValidation($model)
+	{
+		if(isset($_POST['ajax']) && $_POST['ajax']==='post-form')
+		{
+			echo CActiveForm::validate($model);
+			Yii::app()->end();
+		}
+	}
 }
